@@ -105,7 +105,7 @@ $create_artist_stmt =
 $create_album_stmt  = 
   $db.prepare('INSERT OR IGNORE INTO albums  (name) VALUES (:name)')
 $create_track_stmt  = 
-  $db.prepare('INSERT OR IGNORE INTO tracks '+
+  $db.prepare('INSERT OR IGNORE INTO tracks ' +
               '  (name, artist_id, album_id, track, filename) ' +
               'SELECT :name, artists.id, albums.id, :track, :filename ' +
               'FROM albums, artists ' +
@@ -126,8 +126,8 @@ def create_album (name)
 end
 
 def create_album_artist_relation (album, artist)
-  $create_album_artist_relation_stmt.bind_params({ :album => album,
-                                                   :artist  => artist })
+  $create_album_artist_relation_stmt.bind_params({ :album  => album,
+                                                   :artist => artist })
   $create_album_artist_relation_stmt.execute!
 end
 
