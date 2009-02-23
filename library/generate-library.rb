@@ -138,7 +138,7 @@ $unknown_title = 'Unknown Title'
 create_artist $unknown_artist
 create_album $unknown_album
 
-def register_track (data)
+def register_track (data, filename)
   data[:artist_name] = $unknown_artist unless data[:artist_name]
   data[:album_title] = $unknown_album  unless data[:album_title]
   data[:track_title] = $unknown_title  unless data[:track_title]
@@ -149,10 +149,11 @@ def register_track (data)
   create_album album
   create_album_artist_relation album, artist
 
-  $create_track_stmt.bind_params({ :artist => artist,
-                                   :album  => album,
-                                   :name   => data[:track_title],
-                                   :track  => data[:track_index] })
+  $create_track_stmt.bind_params({ :artist   => artist,
+                                   :album    => album,
+                                   :name     => data[:track_title],
+                                   :track    => data[:track_index],
+                                   :filename => filename})
   $create_track_stmt.execute!
 end
 
@@ -189,7 +190,7 @@ Find.find *ARGV do |file_name|
         end
       end
 
-      register_track data
+      register_track data, File.expand_path(file_name)
 
     rescue TagLib::BadFile
       puts ; warn_skip file_name, "Unrecognized file format."
