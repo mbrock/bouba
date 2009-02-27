@@ -4,8 +4,9 @@ CREATE TABLE artists
    name TEXT UNIQUE);
 
 CREATE TABLE albums
-  (id   INTEGER PRIMARY KEY,
-   name TEXT UNIQUE);
+  (id      INTEGER PRIMARY KEY,
+   name    TEXT UNIQUE,
+   artwork BLOB);
 
 CREATE TABLE tracks
   (id        INTEGER PRIMARY KEY,
@@ -15,11 +16,8 @@ CREATE TABLE tracks
    track     INTEGER,
    filename  TEXT    UNIQUE);
 
-CREATE TABLE album_artist_relations
-  (album_id  INTEGER PRIMARY KEY,
-   artist_id INTEGER KEY);
+CREATE TABLE albums_artists
+  (album_id  INTEGER,
+   artist_id INTEGER);
 
-CREATE TABLE album_art
-  (album_id INTEGER UNIQUE,
-   image    BLOB);
 

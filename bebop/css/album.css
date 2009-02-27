@@ -1,0 +1,32 @@
+
+body {
+  padding-top: 2em;
+  background-color: #555;
+  color: #ccc;
+  font-family: monospace;
+}
+
+h1, h2, h3, h4 { margin: 0; padding: 0; }
+
+h1 {
+  text-align: center;
+}
+
+.album {
+  min-height: 200px;
+  margin-top: 2em;
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1em;
+  border: 3px solid #777;
+  background-color: #606060;
+}
+
+.album img {
+  float: right;
+  width: 200px;
+  height: 200px;
+  margin-left: 1em;
+  border: 2px inset #333;
+}

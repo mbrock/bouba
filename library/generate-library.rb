@@ -30,6 +30,8 @@ require "find"
 require "taglib"
 require "sqlite3"
 
+load "../model.rb"
+
 if ARGV.empty? or ["-?", "-h", "-help", "--help"].include? ARGV.first
   puts "Usage: #$0 DIRECTORIES..."
   puts "
@@ -98,42 +100,24 @@ end
 n_completed_files = 0           # This counts all files.
 n_processed_files = 0           # This only counts recognized files.
 
-$db = SQLite3::Database.new('library.sqlite')
-
-$create_artist_stmt = 
-  $db.prepare('INSERT OR IGNORE INTO artists (name) VALUES (:name)')
-$create_album_stmt  = 
-  $db.prepare('INSERT OR IGNORE INTO albums  (name) VALUES (:name)')
-$create_track_stmt  = 
-  $db.prepare('INSERT OR IGNORE INTO tracks ' +
-              '  (name, artist_id, album_id, track, filename) ' +
-              'SELECT :name, artists.id, albums.id, :track, :filename ' +
-              'FROM albums, artists ' +
-              'WHERE albums.name = :album AND artists.name = :artist')
-$create_album_artist_relation_stmt =
-  $db.prepare('INSERT OR IGNORE INTO album_artist_relations (album_id, artist_id) ' +
-             'SELECT albums.id, artists.id FROM albums, artists ' +
-             'WHERE albums.name = :album AND artists.name = :artist')
-
 def create_artist (name)
-  $create_artist_stmt.bind_param(:name, name)
-  $create_artist_stmt.execute!
+  Artist.find_or_create_by_name name
 end
 
 def create_album (name)
-  $create_album_stmt.bind_param(:name, name)
-  $create_album_stmt.execute!
+  Album.find_or_create_by_name name
 end
 
 def create_album_artist_relation (album, artist)
-  $create_album_artist_relation_stmt.bind_params({ :album  => album,
-                                                   :artist => artist })
-  $create_album_artist_relation_stmt.execute!
+#  AlbumArtistRelation.find_or_create_by_album_id_and_artist_id album.id, artist.id
+  unless artist.album_ids.include? album.id
+    artist.albums << album
+  end
 end
 
 $unknown_artist = 'Unknown Artist'
-$unknown_album = 'Unknown Album'
-$unknown_title = 'Unknown Title'
+$unknown_album  = 'Unknown Album'
+$unknown_title  = 'Unknown Title'
 
 create_artist $unknown_artist
 create_album $unknown_album
@@ -143,18 +127,22 @@ def register_track (data, filename)
   data[:album_title] = $unknown_album  unless data[:album_title]
   data[:track_title] = $unknown_title  unless data[:track_title]
 
-  artist, album = data[:artist_name], data[:album_title]
+  artist_name, album_name = data[:artist_name], data[:album_title]
 
-  create_artist artist
-  create_album album
+  artist = create_artist artist_name
+  album = create_album album_name
   create_album_artist_relation album, artist
 
-  $create_track_stmt.bind_params({ :artist   => artist,
-                                   :album    => album,
-                                   :name     => data[:track_title],
-                                   :track    => data[:track_index],
-                                   :filename => filename})
-  $create_track_stmt.execute!
+  opts = { 
+    :filename => filename,
+    :artist   => artist,
+    :album    => album,
+    :name     => data[:track_title],
+    :track    => data[:track_index]
+  }
+
+  track = Track.find_by_filename(filename)
+  track.nil? ? Track.create!(opts) : track
 end
 
 Find.find *ARGV do |file_name|

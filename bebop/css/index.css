@@ -1,0 +1,19 @@
+
+body {
+  background-color: #555;
+  color: #ccc;
+  font-family: monospace;
+}
+
+h1, h2, h3, h4 { margin: 0; padding: 0; }
+
+.search {
+  width: 371px;
+  margin: 3em auto auto auto;
+}
+
+.search form {
+  margin-top: 2em;
+  width: 100%;
+  text-align: center;
+}

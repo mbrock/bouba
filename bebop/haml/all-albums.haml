@@ -1,0 +1,13 @@
+
+%html{html_attrs}
+  %head
+    %link{ :rel => 'stylesheet', :type => 'text/css', :href => '/css/albums.css' }
+  %body
+    %h1= "Albums"
+    - Album.find(:all).each do |album|
+      .album
+        %img{ :src => art_url_for(album.id), :alt => album.name }
+        %h2= album.name
+        %ol
+          - album.tracks.each do |track|
+            %li= track.name

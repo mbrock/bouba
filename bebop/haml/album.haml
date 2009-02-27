@@ -1,0 +1,12 @@
+
+%html{html_attrs}
+  %head
+    %link{ :rel => 'stylesheet', :type => 'text/css', :href => '/css/album.css' }
+  %body
+    %h1= album.artists.map { |x| x.name }.join(', ')
+    .album
+      %img{ :src => art_url_for(album.id), :alt => album.name }
+      %h2= album.name
+      %ol
+        - album.tracks.each do |track|
+          %li= track.name

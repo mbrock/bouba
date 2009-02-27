@@ -3,9 +3,13 @@ require 'rubygems'
 require 'amazon'
 require 'amazon/aws/search'
 require 'sqlite3'
-require 'open-uri'
+require 'levenshtein'
+require 'cgi'
 
+require 'open-uri'
 require 'pp'
+
+require "../model"
 
 DEV_TOKEN = '0Q5B7WX2NCVGPSFH4Z82'
 
@@ -18,61 +22,50 @@ end
 def album_cover_fetch(artist, album)
   @request = Amazon::AWS::Search::Request.new(DEV_TOKEN)
 
-  search = Amazon::AWS::ItemSearch.new( 'Music', { 'Keywords' => artist + ' ' + album })
+  search = Amazon::AWS::ItemSearch.new( 'Music', { 'Artist' => artist })
   begin
-    @response = @request.search(search, Amazon::AWS::ResponseGroup.new('Large'))
+    @response = @request.search(search,
+                   Amazon::AWS::ResponseGroup.new('Images, ItemAttributes'), 2)
   rescue Amazon::AWS::Error::NoExactMatches
     return nil
   end
 
-  products = @response.instance_variable_get('@item_search_response').to_h
+  albums = {}
+  single_page = @response.instance_variables.length > 0
+  responses = (single_page ? [@response] : @response)
 
-  item = products['items'].item
-  if item.respond_to? :image_sets
-    url = item.image_sets.image_set.large_image.url.to_s
-  else
-    url = item.product.first.first.large_image.url.to_s
+  responses.each do |response|
+    (single_page ?
+     [response.item_search_response] :
+      response.item_search_response).each do |key, value|
+      key.items.each do |key, value|
+        key.item.each do |key, value|
+          if key.large_image.url.to_s != ""
+            albums[CGI::unescapeHTML(key.item_attributes.title.to_s)] =
+              key.large_image.url.to_s
+          end
+        end
+      end
+    end
   end
-  
-  if url == ""
-    return nil
-  else
-    return url
-  end
+
+  titles =
+   albums.keys.sort_by {|x| Levenshtein.distance(x.downcase, album.downcase)}
+
+  albums[titles.first]
 end
 
-$db = SQLite3::Database.new('library.sqlite')
-
-$get_artist_stmt = 
-  ('SELECT name FROM artists WHERE id = ' +
-   '(SELECT artist_id FROM album_artist_relations ' +
-   ' WHERE album_id = :id)')
-
-$get_album_stmt =
-  ('SELECT name FROM albums WHERE id = :id')
-
-$insert_album_art =
-  ('INSERT OR REPLACE INTO album_art (album_id, image) ' +
-   'VALUES (:album_id, :image)')
-
-
-$db.execute('SELECT albums.id AS id FROM albums') do |album_name_row|
-#            'EXCEPT SELECT album_art.album_id ' +
-#            'AS id FROM album_art') 
-  album_id = *album_name_row
-
-  artist_name = $db.get_first_value($get_artist_stmt, {:id => album_id})
-  album_name = $db.get_first_value($get_album_stmt, {:id => album_id})
-
-  next if artist_name == 'Unknown Artist'
-  next if album_name  == 'Unknown Album'
-
-  p [artist_name, album_name]
-  url = album_cover_fetch(artist_name, album_name)
+Album.find(:all).each do |album|
+  next if album.artwork?
+  next if album.artists == ['Unknown Artist']
+  next if album.name  == 'Unknown Album'
+  
+  p [album.artists.first.name, album.name]
+  url = album_cover_fetch(album.artists.first.name, album.name)
 
   if url != nil
-    coverart = open(url).read
-    $db.execute($insert_album_art, { :album_id => album_id,
-                                     :image    => SQLite3::Blob.new(coverart) })
+    puts "Found art: #{url}"
+    album.artwork = open(url).read
+    album.save!
   end
 end
