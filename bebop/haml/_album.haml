@@ -1,0 +1,9 @@
+
+.album
+  %img{ :src => art_url_for(album.id), :alt => album.name }
+  %h2= album.name
+  %ol
+    - album.tracks.each do |track|
+      %li
+        %a{ :href => "javascript:soundManager.play('mySound', '/mp3/#{track.id}');" }
+          = track.name

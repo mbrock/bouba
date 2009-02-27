@@ -21,14 +21,14 @@ class Bebop < Mongrel::HttpHandler
     Haml::Engine.new(File.read('haml/' + name + '.haml'))
   end
 
-  def render_haml (out, name, params = {})
-    out.write(haml(name).render(self, params))
+  def render_haml (name, params = {})
+    haml(name).render(self, params)
   end
 
   def respond_haml (name, params = {}, code = 200, content_type = 'text/html')
     @response.start code do |head, out|
       head["Content-Type"] = content_type
-      render_haml out, name, params
+      out.write(render_haml(name, params))
     end
   end
 
@@ -90,6 +90,12 @@ class Bebop < Mongrel::HttpHandler
     else
       '/img/unknown-album.jpg'
     end
+  end
+
+  def render_albums (albums)
+    albums.map do |album|
+      render_haml '_album', :album => album
+    end.join("\n")
   end
   
   def process (request, response)

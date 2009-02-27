@@ -2,16 +2,9 @@
 %html{html_attrs}
   %head
     %link{ :rel => 'stylesheet', :type => 'text/css', :href => '/css/artist.css' }
-      %script{ :type => "text/javascript", :src => "/script/soundmanager2.js" }
-      %script{ :type => "text/javascript" }
-        soundManager.url = '/swf/';
+    %script{ :type => "text/javascript", :src => "/script/soundmanager2.js" }
+    %script{ :type => "text/javascript" }
+      soundManager.url = '/swf/';
   %body
     %h1= artist.name
-    - artist.albums.each do |album|
-      .album
-        %img{ :src => art_url_for(album.id), :alt => album.name }
-        %h2= album.name
-        %ol
-          - album.tracks.each do |track|
-            %li
-              %a{ :href => "javascript:soundManager.play('mySound', '/mp3/#{track.id}');" }= track.name
+    = render_albums artist.albums
