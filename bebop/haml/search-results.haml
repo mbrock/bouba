@@ -1,0 +1,19 @@
+
+.searchresults
+  %h1= "Search results for &quot;" + search_string + "&quot;"
+  %table
+    %tr
+      %th= "Artists:"
+      %th= "Albums:"
+      %tr
+        %td
+          %ol
+            - artists.each do |artist|
+              %li
+                %a{ :href => "/artist/" + artist.name}= artist.name
+        %td
+          %ol
+            - albums.each do |album|
+              %li
+                %a{ :href => "/album/" + album.name}= album.name
+                %span= 'by ' + album.artists.map { |x| x.name }.join(', ')

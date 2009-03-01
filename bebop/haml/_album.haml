@@ -5,5 +5,5 @@
   %ol
     - album.tracks.each do |track|
       %li
-        %a{ :href => "javascript:soundManager.play('mySound', '/mp3/#{track.id}');" }
+        %a{ :href => "javascript:parent.player.soundManager.play('mySound', '/mp3/#{track.id}');" }
           = track.name

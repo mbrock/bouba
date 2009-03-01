@@ -2,9 +2,6 @@
 %html{html_attrs}
   %head
     %link{ :rel => 'stylesheet', :type => 'text/css', :href => '/css/artist.css' }
-    %script{ :type => "text/javascript", :src => "/script/soundmanager2.js" }
-    %script{ :type => "text/javascript" }
-      soundManager.url = '/swf/';
   %body
     %h1= artist.name
     = render_albums artist.albums

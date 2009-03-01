@@ -110,6 +110,10 @@ class Bebop < Mongrel::HttpHandler
       end
     else
       case request.params['REQUEST_PATH']
+      when /^\/search$/
+        search_page
+      when /^\/player$/
+        respond_haml 'player'
       when /^\/search\/(.+)$/
         search $1
       when /^\/mp3\/(\d+)$/
@@ -121,7 +125,7 @@ class Bebop < Mongrel::HttpHandler
       when /^\/album\/(.+)$/
         serve_album $1
       else
-        search_page
+        respond_haml 'index'
       end
     end
   end
