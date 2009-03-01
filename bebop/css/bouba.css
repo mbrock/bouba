@@ -52,3 +52,22 @@ th {
 td {
   width: 33em;
 }
+
+.search {
+  width: 371px;
+  margin: 3em auto auto auto;
+}
+
+.search form {
+  margin-top: 2em;
+  width: 100%;
+  text-align: center;
+}
+
+input {
+  border: 2px solid #7f412d;
+  background-color: #3a2e2a;
+  color: #ccc;
+  font-size: large;
+  padding: 0.4em;
+}

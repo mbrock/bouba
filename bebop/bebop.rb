@@ -84,6 +84,16 @@ class Bebop < Mongrel::HttpHandler
     respond_haml 'search-page'
   end
 
+  def artist_link (artist)
+    name = CGI::escape(artist.name)
+    "<a href=\"/artist/#{name}\">" + CGI::escapeHTML(artist.name) + "</a>"
+  end
+
+  def album_link (album)
+    name = CGI::escape(album.name)
+    "<a href=\"/album/#{name}\">" + CGI::escapeHTML(album.name) + "</a>"
+  end
+
   def art_url_for (album_id)
     if Album.find_by_id(album_id).artwork?
       "/art/#{album_id}"
@@ -101,6 +111,8 @@ class Bebop < Mongrel::HttpHandler
   def process (request, response)
     @response = response
     
+    STDERR.puts "#{request.params['REMOTE_ADDR']}: #{request.params['REQUEST_PATH']}"
+
     case request.params['REQUEST_METHOD']
     when 'POST'
       if request.body.read =~ /^search=(.+)$/

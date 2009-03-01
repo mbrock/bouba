@@ -1,0 +1,17 @@
+%html{html_attrs}
+  %head
+    %script{ :type => "text/javascript", :src => "/script/soundmanager2.js" }
+    :javascript
+      soundManager.url = '/swf/';
+
+    :javascript
+      var currentSound;
+      function playTrack (trackID) {
+        if (currentSound != null)
+          currentSound.destruct ();
+        currentSound = soundManager.createSound ({ id: 'sound',
+                                                   url: '/mp3/' + trackID });
+        currentSound.play ();
+      }
+  %body
+    #player

@@ -1,8 +1,9 @@
 
 %html{html_attrs}
   %head
-    %link{ :rel => 'stylesheet', :type => 'text/css', :href => '/css/album.css' }
+    %link{ :rel => 'stylesheet', :type => 'text/css', :href => '/css/bouba.css' }
   %body
-    %h1= album.artists.map { |x| x.name }.join(', ')
+    %h1
+      = album.artists.map { |x| artist_link(x) }.join(', ')
     = render_albums [album]
 
