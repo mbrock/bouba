@@ -28,11 +28,14 @@ h1 {
   width: 200px;
   height: 200px;
   margin-left: 1em;
-  border: 2px inset #333;
 }
 
 a {
   color: #FF6633;
+}
+
+a.track {
+  color: #FFCC66;
 }
 
 table {

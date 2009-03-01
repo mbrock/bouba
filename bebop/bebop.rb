@@ -61,7 +61,7 @@ class Bebop < Mongrel::HttpHandler
   def serve_artist (artist_name)
     artist = Artist.find_by_name(CGI::unescape(artist_name))
     if artist.nil?
-      respond_haml('artist-not-found', { :artist => CGI::unescape(artist_name) }, 404)
+      respond_haml('not-found', { :string => CGI::unescape(artist_name) }, 404)
     else
       respond_haml('artist', :artist => artist)
     end
@@ -70,7 +70,7 @@ class Bebop < Mongrel::HttpHandler
   def serve_album (album_name)
     album = Album.find_by_name(CGI::unescape(album_name))
     if album.nil?
-      respond_haml('album-not-found', { :album => CGI::unescape(album_name) }, 404)
+      respond_haml('not-found', { :string => CGI::unescape(album_name) }, 404)
     else
       respond_haml('album', :album => album)
     end
@@ -111,11 +111,13 @@ class Bebop < Mongrel::HttpHandler
   def process (request, response)
     @response = response
     
-    STDERR.puts "#{request.params['REMOTE_ADDR']}: #{request.params['REQUEST_PATH']}"
+    STDERR.puts("#{request.params['REMOTE_ADDR']}: " +
+                "#{request.params['REQUEST_PATH']}")
 
     case request.params['REQUEST_METHOD']
     when 'POST'
       if request.body.read =~ /^search=(.+)$/
+        STDERR.puts("Search for `#{$1}'")
         search $1
       else
         # no search terms, tell the user that he is a moron...
